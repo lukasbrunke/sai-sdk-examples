@@ -49,3 +49,47 @@ if(MSVC)
     COMMAND_EXPAND_LISTS
   )
 endif()
+
+set(BUILD_MAPPER ON CACHE STRING "Build VIO mapper example (requires OpenCV)")
+if (BUILD_MAPPER)
+  find_package(Threads REQUIRED)
+  set(USE_STATIC_OPENCV OFF CACHE STRING "Use OpenCV as statically linked library (internal and unsupported flag, do not use)")
+  if (USE_STATIC_OPENCV)
+    find_package(mobile-cv-suite REQUIRED)
+    set(MAPPER_LIBS mobile-cv-suite::static mobile-cv-suite::imgcodecs Threads::Threads)
+  else()
+    find_package(OpenCV REQUIRED)
+    set(MAPPER_LIBS "${OpenCV_LIBS}" Threads::Threads)
+  endif()
+
+  add_executable(vio_mapper vio_mapper.cpp)
+  target_link_libraries(vio_mapper ${EXAMPLE_LIBS} ${MAPPER_LIBS})
+  if(MSVC)
+    add_custom_command(TARGET vio_mapper POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:vio_mapper> $<TARGET_FILE_DIR:vio_mapper>
+      COMMAND_EXPAND_LISTS
+    )
+  endif()
+endif()
+
+set(BUILD_MAPPER ON CACHE STRING "Build global point cloud example (requires OpenCV)")
+if (BUILD_MAPPER)
+  find_package(Threads REQUIRED)
+  set(USE_STATIC_OPENCV OFF CACHE STRING "Use OpenCV as statically linked library (internal and unsupported flag, do not use)")
+  if (USE_STATIC_OPENCV)
+    find_package(mobile-cv-suite REQUIRED)
+    set(MAPPER_LIBS mobile-cv-suite::static mobile-cv-suite::imgcodecs Threads::Threads)
+  else()
+    find_package(OpenCV REQUIRED)
+    set(MAPPER_LIBS "${OpenCV_LIBS}" Threads::Threads)
+  endif()
+
+  add_executable(global_pcd global_pcd.cpp)
+  target_link_libraries(global_pcd ${EXAMPLE_LIBS} ${MAPPER_LIBS})
+  if(MSVC)
+    add_custom_command(TARGET global_pcd POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:global_pcd> $<TARGET_FILE_DIR:global_pcd>
+      COMMAND_EXPAND_LISTS
+    )
+  endif()
+endif()
